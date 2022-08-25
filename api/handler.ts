@@ -22,6 +22,7 @@ export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayPro
               2)
         };
     } catch (e) {
+        console.error(e);
         return {
           statusCode: 400,
           headers: {
