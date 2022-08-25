@@ -8,7 +8,7 @@ export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayPro
         let signUpRequest: SignUpRequest = JSON.parse(event.body);
         await signUpNewUser(signUpRequest);
         return {
-          statusCode: 204,
+          statusCode: 201,
           headers: {
               'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Credentials': true,
