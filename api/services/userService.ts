@@ -10,7 +10,7 @@ export const signUpNewUser = async (signUpRequest: SignUpRequest) => {
         throw new Error(`User with email ${signUpRequest.email} already exists.`);
     }
     if (signUpRequest.userType == UserType.COMPANY_MANAGER) {
-        await createCompany(signUpRequest.name, signUpRequest.name.toLocaleLowerCase().replace(/\s/g, '-'));
+        await createCompany(signUpRequest.name, signUpRequest.companyName.toLocaleLowerCase().replace(/\s/g, '-'));
     }
     let user: User = {
         email: signUpRequest.email,
