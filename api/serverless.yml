@@ -1,0 +1,80 @@
+service:
+  name: kolabs
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  versionFunctions: false
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  timeout: 300
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - "arn:aws:dynamodb:us-east-1:*:*"
+        - "arn:aws:dynamodb:us-west-2:*:*"
+        - "arn:aws:dynamodb:ca-central-1:*:*"
+    - Effect: "Allow"
+      Action:
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
+    - Effect: Allow
+      Action:
+        - SQS:*
+      Resource:
+        - "arn:aws:sqs:us-east-1:*:*"
+        - "arn:aws:sqs:us-west-2:*:*"
+        - "arn:aws:sqs:ca-central-1:*:*"
+    - Effect: Allow
+      Action:
+        - SNS:*
+      Resource:
+        - "arn:aws:sns:us-east-1:*:*"
+        - "arn:aws:sns:us-west-2:*:*"
+        - "arn:aws:sns:ca-central-1:*:*"
+    - Effect: Allow
+      Action:
+        - s3:putObject
+        - s3:deleteObject
+        - s3:getObject
+        - s3:listBucket
+      Resource: "arn:aws:s3:::*/*"
+
+functions:
+  signUp:
+    handler: handler.signUpHandler
+    events:
+      - http:
+          method: post
+          path: users/signUp
+          cors: true
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
