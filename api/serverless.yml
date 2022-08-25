@@ -25,9 +25,7 @@ provider:
       Action:
         - dynamodb:*
       Resource:
-        - "arn:aws:dynamodb:us-east-1:*:*"
-        - "arn:aws:dynamodb:us-west-2:*:*"
-        - "arn:aws:dynamodb:ca-central-1:*:*"
+        - "arn:aws:dynamodb:us-east-2:*:*"
     - Effect: "Allow"
       Action:
         - "logs:CreateLogGroup"
@@ -41,16 +39,12 @@ provider:
       Action:
         - SQS:*
       Resource:
-        - "arn:aws:sqs:us-east-1:*:*"
-        - "arn:aws:sqs:us-west-2:*:*"
-        - "arn:aws:sqs:ca-central-1:*:*"
+        - "arn:aws:sqs:us-east-2:*:*"
     - Effect: Allow
       Action:
         - SNS:*
       Resource:
-        - "arn:aws:sns:us-east-1:*:*"
-        - "arn:aws:sns:us-west-2:*:*"
-        - "arn:aws:sns:ca-central-1:*:*"
+        - "arn:aws:sns:us-east-2:*:*"
     - Effect: Allow
       Action:
         - s3:putObject
@@ -78,3 +72,27 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: 'ApiGatewayRestApi'
+    KolabsUsersTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "email"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "email"
+            KeyType: "HASH"
+        TableName: KolabsUsers
+        BillingMode: PAY_PER_REQUEST
+    KolabsCompaniesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
+        TableName: KolabsCompanies
+        BillingMode: PAY_PER_REQUEST
