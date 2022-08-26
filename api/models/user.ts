@@ -6,4 +6,5 @@ export interface User {
     userType: UserType;
     active: boolean;
     companyId?: string;
+    colabComps?: string[]
 }

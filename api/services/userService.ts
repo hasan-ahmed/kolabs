@@ -2,7 +2,7 @@ import { LogInRequest } from "../interfaces/user/logIn";
 import { SignUpRequest } from "../interfaces/user/signUp";
 import { User } from "../models/user";
 import { UserType } from "../models/userType";
-import { getUserByEmail, putNewUser } from "../repositories/userRepository";
+import { getUserByEmail, putUser } from "../repositories/userRepository";
 import { createCompany } from "./companyService";
 import {sign, verify} from "jsonwebtoken"
 const JWT_SECRET: string = "6y@2%xZ8S*xTl^ze";
@@ -27,9 +27,6 @@ export const logInUser = async (logInRequest: LogInRequest): Promise<string> => 
 }
 
 export const signUpNewUser = async (signUpRequest: SignUpRequest) => {
-    if (await getUserByEmail(signUpRequest.email) != null) {
-        throw new Error(`User with email ${signUpRequest.email} already exists.`);
-    }
     if (signUpRequest.userType == UserType.COMPANY_MANAGER) {
         await createCompany(signUpRequest.companyName, signUpRequest.companyName.toLocaleLowerCase().replace(/\s/g, '-'));
     }
@@ -42,7 +39,10 @@ export const signUpNewUser = async (signUpRequest: SignUpRequest) => {
     if (signUpRequest.userType == UserType.COMPANY_MANAGER) {
         user.companyId = signUpRequest.companyName.toLocaleLowerCase().replace(/\s/g, '-');
     }
-    await putNewUser(user)
+    if (signUpRequest.userType == UserType.USER) {
+        user.colabComp = []
+    }
+    await putUser(user)
 }
 
 export const loginUser = async (logInRequest: LogInRequest) => {
@@ -67,3 +67,11 @@ export const validateToken = async(token: string): Promise<object> => {
         };
     }
 };
+
+export const addCompanyToUser = async(email: string, companyId: string) => {
+    let user: User = await getUserByEmail(email);
+    if (user == null) {
+        throw new Error(`User with email ${email} does not exist.`);
+    }
+    user.colabComps.push(companyId);
+}

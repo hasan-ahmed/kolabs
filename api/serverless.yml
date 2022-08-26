@@ -70,6 +70,20 @@ functions:
           cors: true
   authorizerFunc:
     handler: handler.authorizerFuncHandler
+  addUserToCompany:
+    handler: handler.addUserToCompanyHandler
+    events:
+      - http:
+          method: post
+          path: /company/user
+          cors: true
+          authorizer:
+            name: authorizerFunc
+            resultTtlInSeconds: 0
+            type: token
+            identitySource: method.request.header.Authorization
+
+
 
 resources:
   Resources:
@@ -105,16 +119,4 @@ resources:
           - AttributeName: "id"
             KeyType: "HASH"
         TableName: KolabsCompanies
-        BillingMode: PAY_PER_REQUEST
-    KolabsCompaniesUsers:
-      Type: AWS::DynamoDB::Table
-      DeletionPolicy: Retain
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: "companyId"
-            AttributeType: "S"
-        KeySchema:
-          - AttributeName: "id"
-            KeyType: "HASH"
-        TableName: KolabsCompaniesUsers
         BillingMode: PAY_PER_REQUEST

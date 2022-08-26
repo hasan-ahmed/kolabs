@@ -3,7 +3,7 @@ import * as AWS from "aws-sdk";
 import {AttributeMap, GetItemInput, PutItemInput} from "aws-sdk/clients/dynamodb";
 import { Company } from "../models/company";
 
-export const putNewCompany = async ( company: Company): Promise<boolean> => {
+export const putCompany = async ( company: Company): Promise<boolean> => {
     let marshalledCompany: AttributeMap = AWS.DynamoDB.Converter.marshall(company);
     const params: PutItemInput = {
         TableName: "KolabsCompanies",
