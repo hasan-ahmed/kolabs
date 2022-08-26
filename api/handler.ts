@@ -1,11 +1,12 @@
 import { APIGatewayAuthorizerHandler, APIGatewayAuthorizerResult, APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayTokenAuthorizerEvent } from "aws-lambda";
+import { CreateFeatureRequest } from "./interfaces/featureRequest/createFeature";
 import { LogInRequest } from "./interfaces/user/logIn";
 import { SignUpRequest } from "./interfaces/user/signUp";
 import { User } from "./models/user";
 import { UserType } from "./models/userType";
-import { getCompanyById } from "./repositories/companyRepository";
 import { getUserByEmail } from "./repositories/userRepository";
 import { addUserToCompany } from "./services/companyService";
+import { createNewFeatureRequest } from "./services/featureRequestService";
 import { logInUser, signUpNewUser, validateToken } from "./services/userService";
 
 export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
@@ -47,7 +48,7 @@ export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayPro
 }
 
 export const logInHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
-    console.log("Received request to POST /signUp with body:", JSON.stringify(event.body, null, 2));
+    console.log("Received request to POST /logIn with body:", JSON.stringify(event.body, null, 2));
     try {
         let loginRequest: LogInRequest = JSON.parse(event.body);
         const token: string = await logInUser(loginRequest)
@@ -109,7 +110,7 @@ export const authorizerFuncHandler: APIGatewayAuthorizerHandler = async (event: 
 }
 
 export const addUserToCompanyHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
-    console.log("Received request to POST /signUp with body:", JSON.stringify(event.body, null, 2));
+    console.log("Received request to POST /company/user with body:", JSON.stringify(event.body, null, 2));
     try {
         const body: object = JSON.parse(event.body);
         const userEmail: string = body["userEmail"] as string;
@@ -156,4 +157,45 @@ export const addUserToCompanyHandler: APIGatewayProxyHandler = async (event: API
       };
     }
 }
+
+export const createNewFeatureRequestHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
+    console.log("Received request to POST /featureRequest with body:", JSON.stringify(event.body, null, 2));
+    try {
+        const createFeatureRequest: CreateFeatureRequest = JSON.parse(event.body);
+        const userEmail: string = event?.requestContext?.authorizer?.principalId != null && typeof event.requestContext.authorizer.principalId === 'string'? event.requestContext.authorizer.principalId : '';
+        await createNewFeatureRequest(createFeatureRequest, userEmail);
+        return {
+          statusCode: 200,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                  success: true,
+                  message: `Your feature request has been submitted successfully.`
+              },
+              null,
+              2)
+        };
+    } catch (e) {
+        console.error(e);
+        return {
+          statusCode: 400,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                  success: false,
+                  message: e.message
+              },
+              null,
+              2)
+      };
+    }
+
+}
+
 

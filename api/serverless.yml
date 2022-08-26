@@ -82,6 +82,18 @@ functions:
             resultTtlInSeconds: 0
             type: token
             identitySource: method.request.header.Authorization
+  createNewFeatureRequest:
+    handler: handler.createNewFeatureRequestHandler
+    events:
+      - http:
+          method: post
+          path: /featureRequest
+          cors: true
+          authorizer:
+            name: authorizerFunc
+            resultTtlInSeconds: 0
+            type: token
+            identitySource: method.request.header.Authorization
 
 
 
@@ -119,4 +131,20 @@ resources:
           - AttributeName: "id"
             KeyType: "HASH"
         TableName: KolabsCompanies
+        BillingMode: PAY_PER_REQUEST
+    KolabsFeatureRequestsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+          - AttributeName: "companyId"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
+          - AttributeName: "companyId"
+            KeyType: "RANGE"
+        TableName: KolabsFeatureRequests
         BillingMode: PAY_PER_REQUEST
