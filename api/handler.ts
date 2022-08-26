@@ -1,7 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayAuthorizerHandler, APIGatewayAuthorizerResult, APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayTokenAuthorizerEvent } from "aws-lambda";
 import { LogInRequest } from "./interfaces/user/logIn";
 import { SignUpRequest } from "./interfaces/user/signUp";
-import { logInUser, signUpNewUser } from "./services/userService";
+import { logInUser, signUpNewUser, validateToken } from "./services/userService";
 
 export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
     console.log("Received request to POST /signUp with body:", JSON.stringify(event.body, null, 2));
@@ -78,3 +78,28 @@ export const logInHandler: APIGatewayProxyHandler = async (event: APIGatewayProx
       };
     }
 }
+
+export const authorizerFuncHandler: APIGatewayAuthorizerHandler = async (event: APIGatewayTokenAuthorizerEvent): Promise <APIGatewayAuthorizerResult> => {
+    console.log(event);
+    let result = await validateToken(event.authorizationToken);
+    let effect: string = result["success"] ? "Allow" : "Deny";
+    console.log("Token Validation Result: ", result["success"]);
+    let principalId: string = result["subject"];
+
+    let authResponse = {
+        principalId: principalId,
+        policyDocument: {
+            Version: "2012-10-17",
+            Statement: [
+                {
+                    "Action": "execute-api:Invoke",
+                    "Effect": effect,
+                    "Resource": event.methodArn
+                }
+            ]
+        }
+    };
+    console.log(authResponse);
+    return authResponse;
+}
+

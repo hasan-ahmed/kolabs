@@ -17,7 +17,7 @@ provider:
   versionFunctions: false
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
-  timeout: 300
+  timeout: 30
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
   iamRoleStatements:
@@ -61,6 +61,16 @@ functions:
           method: post
           path: users/signUp
           cors: true
+  logIn:
+    handler: handler.logInHandler
+    events:
+      - http:
+          method: post
+          path: users/logIn
+          cors: true
+  authorizerFunc:
+    handler: handler.authorizerFuncHandler
+
 resources:
   Resources:
     GatewayResponseDefault4XX:
@@ -95,4 +105,16 @@ resources:
           - AttributeName: "id"
             KeyType: "HASH"
         TableName: KolabsCompanies
+        BillingMode: PAY_PER_REQUEST
+    KolabsCompaniesUsers:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "companyId"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
+        TableName: KolabsCompaniesUsers
         BillingMode: PAY_PER_REQUEST

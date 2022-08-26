@@ -17,7 +17,7 @@ export const logInUser = async (logInRequest: LogInRequest): Promise<string> => 
     }
     const jwtPayload: object = {
         sub: user.email,  
-        roles: user.userType
+        userType: user.userType
     }
     if (user.companyId != null) {
         jwtPayload["companyId"] = user.companyId
@@ -52,3 +52,18 @@ export const loginUser = async (logInRequest: LogInRequest) => {
     }
 
 }
+
+export const validateToken = async(token: string): Promise<object> => {
+    try {
+        let decodedToken = verify(token, JWT_SECRET);
+        return {
+            success: true,
+            subject: decodedToken["sub"]
+        };
+    } catch(err) {
+        console.error(err, err.stack);
+        return {
+            success: false
+        };
+    }
+};
