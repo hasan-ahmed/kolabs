@@ -6,7 +6,7 @@ import { Company } from "../models/company";
 export const putNewCompany = async ( company: Company): Promise<boolean> => {
     let marshalledCompany: AttributeMap = AWS.DynamoDB.Converter.marshall(company);
     const params: PutItemInput = {
-        TableName: "KolabsCompany",
+        TableName: "KolabsCompanies",
         Item: marshalledCompany
     };
     let putItemPromise = new DynamoDB().putItem(params).promise();
@@ -24,7 +24,7 @@ export const getCompanyById = async (id: string): Promise<Company> => {
         Key: {
             'id': {S: id}
         },
-        TableName: 'KolabsCompany'
+        TableName: 'KolabsCompanies'
 
     };
     let getItemPromise = new DynamoDB().getItem(params).promise();
