@@ -74,4 +74,5 @@ export const addCompanyToUser = async(email: string, companyId: string) => {
         throw new Error(`User with email ${email} does not exist.`);
     }
     user.colabComps.push(companyId);
+    putUser(user);
 }
