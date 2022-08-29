@@ -18,3 +18,16 @@ export function getFeatureRequests() {
         } }
     )
 }
+
+export function upvoteFeatureRequest(requestId) {
+    return axios.post(
+        `${BASE_URL}/featureRequest/upvote`,
+        {id: requestId},
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
+            }
+        }
+    )
+}
