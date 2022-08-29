@@ -106,6 +106,18 @@ functions:
             resultTtlInSeconds: 0
             type: token
             identitySource: method.request.header.Authorization
+  upvoteFeatureRequest:
+    handler: handler.upvoteFeatureRequestHandler
+    events:
+      - http:
+          method: post
+          path: /featureRequest/upvote
+          cors: true
+          authorizer:
+            name: authorizerFunc
+            resultTtlInSeconds: 0
+            type: token
+            identitySource: method.request.header.Authorization
 
 
 

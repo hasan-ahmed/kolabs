@@ -1,5 +1,6 @@
 import { APIGatewayAuthorizerHandler, APIGatewayAuthorizerResult, APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayTokenAuthorizerEvent } from "aws-lambda";
 import { CreateFeatureRequest } from "./interfaces/featureRequest/createFeature";
+import { upvoteFeatureRequest } from "./interfaces/featureRequest/upvoteFeature";
 import { LogInRequest } from "./interfaces/user/logIn";
 import { SignUpRequest } from "./interfaces/user/signUp";
 import { Company } from "./models/company";
@@ -7,7 +8,7 @@ import { User } from "./models/user";
 import { UserType } from "./models/userType";
 import { getUserByEmail } from "./repositories/userRepository";
 import { addUserToCompany } from "./services/companyService";
-import { createNewFeatureRequest, getAllFeatureReqeustsForCompany } from "./services/featureRequestService";
+import { createNewFeatureRequest, getAllFeatureReqeustsForCompany, upvoteAFeatureRequest } from "./services/featureRequestService";
 import { logInUser, signUpNewUser, validateToken } from "./services/userService";
 
 export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
@@ -242,7 +243,43 @@ export const getAllFeatureReqeustsHandler: APIGatewayProxyHandler = async (event
               2)
       };
     }
-
 }
 
-
+export const upvoteFeatureRequestHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
+    console.log("Received request to POST /featureRequest/upvote with body:", JSON.stringify(event.body, null, 2));
+    try {
+        const userEmail: string = event?.requestContext?.authorizer?.principalId != null && typeof event.requestContext.authorizer.principalId === 'string'? event.requestContext.authorizer.principalId : '';
+        const upvoteFeatureRequest: upvoteFeatureRequest = JSON.parse(event.body);
+        await upvoteAFeatureRequest(upvoteFeatureRequest.id, userEmail);
+        return {
+          statusCode: 200,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                success: true,
+                message: "Feature Request Upvoted"
+              },
+              null,
+              2)
+        };
+    } catch (e) {
+        console.error(e);
+        return {
+          statusCode: 400,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                  success: false,
+                  message: e.message
+              },
+              null,
+              2)
+      };
+    }
+}

@@ -1,6 +1,6 @@
 import { DynamoDB } from "aws-sdk";
 import * as AWS from "aws-sdk";
-import {AttributeMap, PutItemInput, ScanInput} from "aws-sdk/clients/dynamodb";
+import {AttributeMap, GetItemInput, PutItemInput, ScanInput} from "aws-sdk/clients/dynamodb";
 import { FeatureRequest } from "../models/featureRequest";
 
 export const putFeatureRequest = async ( featureRequest: FeatureRequest): Promise<boolean> => {
@@ -34,4 +34,20 @@ export const getFeatureRequestsbyCompanyId = async(companyId: string): Promise<F
     let res: any = await documentClient.scan(params).promise();
     console.log("res", res);
     return res.Items;
+}
+
+export const getFeatureRequestById = async(id: string): Promise<FeatureRequest> => {
+    const params: GetItemInput = {
+        Key: {
+            'id': {S: id}
+        },
+        TableName: 'KolabsFeatureRequests'
+    };
+    let getItemPromise = new DynamoDB().getItem(params).promise();
+    let data: DynamoDB.GetItemOutput = await getItemPromise;
+    if (data.Item != null) {
+        return DynamoDB.Converter.unmarshall(data.Item) as FeatureRequest;
+    } else {
+        return null;
+    }
 }
