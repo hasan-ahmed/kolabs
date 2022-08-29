@@ -6,6 +6,7 @@ import { getCompanyById } from "../repositories/companyRepository";
 import { Company } from "../models/company";
 import { getUserByEmail } from "../repositories/userRepository";
 import { User } from "../models/user";
+import { CommentFeatureRequest } from "../interfaces/featureRequest/commentFeature";
 
 export const createNewFeatureRequest = async (createFeatureRequest: CreateFeatureRequest, userEmail: string) => {
     const company: Company = await getCompanyById(createFeatureRequest.companyId);
@@ -40,5 +41,25 @@ export const upvoteAFeatureRequest = async (featureRequestId: string, userEmail:
     if (!featureRequest.upvotes.includes(userEmail)) {
         featureRequest.upvotes.push(userEmail)
     }
+    await putFeatureRequest(featureRequest);
+}
+
+export const addCommentToFeatureRequest = async (commentFeatureRequest: CommentFeatureRequest, userEmail: string) => {
+    let featureRequest: FeatureRequest = await getFeatureRequestById(commentFeatureRequest.id);
+    if (featureRequest == null) {
+        throw new Error("The desired feature request does not exist");
+    }
+    let user: User = await getUserByEmail(userEmail);
+    if (user == null) {
+        throw new Error("User does not exist");
+    }
+    featureRequest.comments.push(
+        {
+            createdAt: Date.now(),
+            comment: commentFeatureRequest.comment,
+            user: userEmail,
+            userType: user.userType
+        }
+    )
     await putFeatureRequest(featureRequest);
 }

@@ -1,4 +1,5 @@
 import { APIGatewayAuthorizerHandler, APIGatewayAuthorizerResult, APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayTokenAuthorizerEvent } from "aws-lambda";
+import { CommentFeatureRequest } from "./interfaces/featureRequest/commentFeature";
 import { CreateFeatureRequest } from "./interfaces/featureRequest/createFeature";
 import { upvoteFeatureRequest } from "./interfaces/featureRequest/upvoteFeature";
 import { LogInRequest } from "./interfaces/user/logIn";
@@ -8,7 +9,7 @@ import { User } from "./models/user";
 import { UserType } from "./models/userType";
 import { getUserByEmail } from "./repositories/userRepository";
 import { addUserToCompany } from "./services/companyService";
-import { createNewFeatureRequest, getAllFeatureReqeustsForCompany, upvoteAFeatureRequest } from "./services/featureRequestService";
+import { addCommentToFeatureRequest, createNewFeatureRequest, getAllFeatureReqeustsForCompany, upvoteAFeatureRequest } from "./services/featureRequestService";
 import { logInUser, signUpNewUser, validateToken } from "./services/userService";
 
 export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
@@ -261,6 +262,45 @@ export const upvoteFeatureRequestHandler: APIGatewayProxyHandler = async (event:
               {
                 success: true,
                 message: "Feature Request Upvoted"
+              },
+              null,
+              2)
+        };
+    } catch (e) {
+        console.error(e);
+        return {
+          statusCode: 400,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                  success: false,
+                  message: e.message
+              },
+              null,
+              2)
+      };
+    }
+}
+
+export const commentFeatureRequestHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
+    console.log("Received request to POST /featureRequest/comment with body:", JSON.stringify(event.body, null, 2));
+    try {
+        const userEmail: string = event?.requestContext?.authorizer?.principalId != null && typeof event.requestContext.authorizer.principalId === 'string'? event.requestContext.authorizer.principalId : '';
+        const commentFeatureRequest: CommentFeatureRequest = JSON.parse(event.body);
+        await addCommentToFeatureRequest(commentFeatureRequest, userEmail);
+        return {
+          statusCode: 200,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                success: true,
+                message: "Yourr Comment Has Been Added"
               },
               null,
               2)
