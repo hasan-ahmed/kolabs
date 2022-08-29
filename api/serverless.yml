@@ -130,6 +130,18 @@ functions:
             resultTtlInSeconds: 0
             type: token
             identitySource: method.request.header.Authorization
+  updateRequestStatus:
+    handler: handler.updateRequestStatusHandler
+    events:
+      - http:
+          method: post
+          path: /featureRequest/status
+          cors: true
+          authorizer:
+            name: authorizerFunc
+            resultTtlInSeconds: 0
+            type: token
+            identitySource: method.request.header.Authorization
 
 
 

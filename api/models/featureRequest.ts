@@ -9,8 +9,7 @@ export interface FeatureRequest {
     createdBy: string;
     upvotes: string[];
     comments: FeatureRequestComment[];
-    labels: string[];
-    aiLabelsSuggestions: string[];
+    aiLabelsSuggestions: string;
     status: FeatureRequestStatus;
 }
 

@@ -9,7 +9,7 @@ import { User } from "./models/user";
 import { UserType } from "./models/userType";
 import { getUserByEmail } from "./repositories/userRepository";
 import { addUserToCompany } from "./services/companyService";
-import { addCommentToFeatureRequest, createNewFeatureRequest, getAllFeatureReqeustsForCompany, upvoteAFeatureRequest } from "./services/featureRequestService";
+import { addCommentToFeatureRequest, createNewFeatureRequest, getAllFeatureReqeustsForCompany, updateRequestStatus, upvoteAFeatureRequest } from "./services/featureRequestService";
 import { logInUser, signUpNewUser, validateToken } from "./services/userService";
 
 export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
@@ -323,3 +323,43 @@ export const commentFeatureRequestHandler: APIGatewayProxyHandler = async (event
       };
     }
 }
+
+export const updateRequestStatusHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
+    console.log("Received request to POST /featureRequest/status with body:", JSON.stringify(event.body, null, 2));
+    try {
+        const userEmail: string = event?.requestContext?.authorizer?.principalId != null && typeof event.requestContext.authorizer.principalId === 'string'? event.requestContext.authorizer.principalId : '';
+        const updateStatusPayload = JSON.parse(event.body);
+        await updateRequestStatus(updateStatusPayload["id"], updateStatusPayload["status"]);
+        return {
+          statusCode: 200,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                success: true,
+                message: "Your Comment Has Been Added"
+              },
+              null,
+              2)
+        };
+    } catch (e) {
+        console.error(e);
+        return {
+          statusCode: 400,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                  success: false,
+                  message: e.message
+              },
+              null,
+              2)
+      };
+    }
+}
+

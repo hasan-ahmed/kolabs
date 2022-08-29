@@ -22,6 +22,9 @@ export const logInUser = async (logInRequest: LogInRequest): Promise<string> => 
     if (user.companyId != null) {
         jwtPayload["companyId"] = user.companyId
     }
+    if (user.colabComps != null && user.colabComps.length > 0) {
+        jwtPayload["companyId"] = user.colabComps[0]
+    }
     const token: string = sign(jwtPayload, JWT_SECRET, {expiresIn: 86400});
     return token;
 }
@@ -45,13 +48,6 @@ export const signUpNewUser = async (signUpRequest: SignUpRequest) => {
     await putUser(user)
 }
 
-export const loginUser = async (logInRequest: LogInRequest) => {
-    let user: User = await getUserByEmail(logInRequest.email);
-    if (user == null) {
-        throw new Error(`User with email ${logInRequest.email} does not exist.`);
-    }
-
-}
 
 export const validateToken = async(token: string): Promise<object> => {
     try {

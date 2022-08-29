@@ -7,6 +7,7 @@ import { Company } from "../models/company";
 import { getUserByEmail } from "../repositories/userRepository";
 import { User } from "../models/user";
 import { CommentFeatureRequest } from "../interfaces/featureRequest/commentFeature";
+import { classifyRequest } from "./classificationService";
 
 export const createNewFeatureRequest = async (createFeatureRequest: CreateFeatureRequest, userEmail: string) => {
     const company: Company = await getCompanyById(createFeatureRequest.companyId);
@@ -22,8 +23,7 @@ export const createNewFeatureRequest = async (createFeatureRequest: CreateFeatur
         createdBy: userEmail,
         upvotes: [],
         comments: [],
-        labels: [],
-        aiLabelsSuggestions: [],
+        aiLabelsSuggestions: await classifyRequest(createFeatureRequest.title),
         status: FeatureRequestStatus.NEW
     }
     await putFeatureRequest(featureRequest);
@@ -63,5 +63,14 @@ export const addCommentToFeatureRequest = async (commentFeatureRequest: CommentF
             userType: user.userType
         }
     )
+    await putFeatureRequest(featureRequest);
+}
+
+export const updateRequestStatus = async (featureRequestId: string, status: FeatureRequestStatus) => {
+    let featureRequest: FeatureRequest = await getFeatureRequestById(featureRequestId);
+    if (featureRequest == null) {
+        throw new Error("The desired feature request does not exist");
+    }
+    featureRequest.status = status;
     await putFeatureRequest(featureRequest);
 }

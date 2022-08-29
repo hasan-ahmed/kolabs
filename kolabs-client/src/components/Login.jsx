@@ -18,6 +18,7 @@ const Login = () => {
                 const decodedToken = jwtDecode(res.data.token);
                 localStorage.setItem("user", decodedToken.sub);
                 localStorage.setItem("userType", decodedToken.userType);
+                localStorage.setItem("companyId", decodedToken.companyId);
                 setAuthenticated(true);
                 navigate('/board', { replace: true })
                 setLoading(false);

@@ -31,3 +31,42 @@ export function upvoteFeatureRequest(requestId) {
         }
     )
 }
+
+export function createNewFeatureRequest(title, description) {
+    return axios.post(
+        `${BASE_URL}/featureRequest`,
+        { title: title, description: description, companyId: localStorage.getItem('companyId')},
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
+            }
+        }
+    )
+}
+
+export function addCommentToRequest(comment, featureId) {
+    return axios.post(
+        `${BASE_URL}/featureRequest/comment`,
+        { id: featureId, comment: comment },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
+            }
+        }
+    )
+}
+
+export function updateRequestStatus(status, featureId) {
+    return axios.post(
+        `${BASE_URL}/featureRequest/status`,
+        { id: featureId, status: status },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
+            }
+        }
+    )
+}
