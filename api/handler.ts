@@ -300,7 +300,7 @@ export const commentFeatureRequestHandler: APIGatewayProxyHandler = async (event
           body: JSON.stringify(
               {
                 success: true,
-                message: "Yourr Comment Has Been Added"
+                message: "Your Comment Has Been Added"
               },
               null,
               2)
