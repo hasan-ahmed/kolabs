@@ -40,6 +40,8 @@ export const upvoteAFeatureRequest = async (featureRequestId: string, userEmail:
     }
     if (!featureRequest.upvotes.includes(userEmail)) {
         featureRequest.upvotes.push(userEmail)
+    } else {
+        featureRequest.upvotes = featureRequest.upvotes.filter(e => e !== userEmail);
     }
     await putFeatureRequest(featureRequest);
 }
