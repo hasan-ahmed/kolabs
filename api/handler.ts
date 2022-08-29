@@ -2,11 +2,12 @@ import { APIGatewayAuthorizerHandler, APIGatewayAuthorizerResult, APIGatewayProx
 import { CreateFeatureRequest } from "./interfaces/featureRequest/createFeature";
 import { LogInRequest } from "./interfaces/user/logIn";
 import { SignUpRequest } from "./interfaces/user/signUp";
+import { Company } from "./models/company";
 import { User } from "./models/user";
 import { UserType } from "./models/userType";
 import { getUserByEmail } from "./repositories/userRepository";
 import { addUserToCompany } from "./services/companyService";
-import { createNewFeatureRequest } from "./services/featureRequestService";
+import { createNewFeatureRequest, getAllFeatureReqeustsForCompany } from "./services/featureRequestService";
 import { logInUser, signUpNewUser, validateToken } from "./services/userService";
 
 export const signUpHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
@@ -175,6 +176,43 @@ export const createNewFeatureRequestHandler: APIGatewayProxyHandler = async (eve
                   success: true,
                   message: `Your feature request has been submitted successfully.`
               },
+              null,
+              2)
+        };
+    } catch (e) {
+        console.error(e);
+        return {
+          statusCode: 400,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              {
+                  success: false,
+                  message: e.message
+              },
+              null,
+              2)
+      };
+    }
+}
+
+export const getAllFeatureReqeustsHandler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
+    console.log("Received request to GET /featureRequest with body:", JSON.stringify(event.body, null, 2));
+    try {
+        const companyManagerEmail: string = event?.requestContext?.authorizer?.principalId != null && typeof event.requestContext.authorizer.principalId === 'string'? event.requestContext.authorizer.principalId : '';
+        const user: User = await getUserByEmail(companyManagerEmail);
+        console.log(user);
+        let featureRequests = await getAllFeatureReqeustsForCompany(user.companyId);
+        return {
+          statusCode: 200,
+          headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify(
+              featureRequests,
               null,
               2)
         };

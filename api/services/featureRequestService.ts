@@ -1,7 +1,7 @@
 import { CreateFeatureRequest } from "../interfaces/featureRequest/createFeature";
 import { FeatureRequest, FeatureRequestStatus } from "../models/featureRequest";
 import { v4 as uuidv4 } from 'uuid'
-import { putFeatureRequest } from "../repositories/featureRequestRepository";
+import { getFeatureRequestsbyCompanyId, putFeatureRequest } from "../repositories/featureRequestRepository";
 import { getCompanyById } from "../repositories/companyRepository";
 import { Company } from "../models/company";
 
@@ -24,4 +24,8 @@ export const createNewFeatureRequest = async (createFeatureRequest: CreateFeatur
         status: FeatureRequestStatus.NEW
     }
     await putFeatureRequest(featureRequest);
+}
+
+export const getAllFeatureReqeustsForCompany  = async (companyId: string): Promise<FeatureRequest[]> => {
+    return await getFeatureRequestsbyCompanyId(companyId);
 }

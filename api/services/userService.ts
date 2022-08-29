@@ -40,7 +40,7 @@ export const signUpNewUser = async (signUpRequest: SignUpRequest) => {
         user.companyId = signUpRequest.companyName.toLocaleLowerCase().replace(/\s/g, '-');
     }
     if (signUpRequest.userType == UserType.USER) {
-        user.colabComp = []
+        user.colabComps = []
     }
     await putUser(user)
 }
