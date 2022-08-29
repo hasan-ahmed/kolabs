@@ -204,6 +204,15 @@ export const getAllFeatureReqeustsHandler: APIGatewayProxyHandler = async (event
         const companyManagerEmail: string = event?.requestContext?.authorizer?.principalId != null && typeof event.requestContext.authorizer.principalId === 'string'? event.requestContext.authorizer.principalId : '';
         const user: User = await getUserByEmail(companyManagerEmail);
         console.log(user);
+        let companyId = null;
+        if (user.userType == UserType.COMPANY_MANAGER) {
+            companyId = user.companyId;
+        } else {
+            companyId = user.colabComps[0];
+        }
+        if (companyId == null) {
+            throw new Error("User is not associated to any companies.");
+        }
         let featureRequests = await getAllFeatureReqeustsForCompany(user.companyId);
         return {
           statusCode: 200,
