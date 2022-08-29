@@ -9,6 +9,31 @@ export function login(email, password) {
     )
 }
 
+export function signUp(email, password, userType, companyName) {
+    let payload = { email: email, password: password, userType: userType };
+    if (companyName != null) {
+        payload["companyName"] = companyName
+    }
+    return axios.post(
+        `${BASE_URL}/users/signUp`,
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
+    )
+}
+
+export function addUserToCompany(userEmail) {
+    return axios.post(
+        `${BASE_URL}/company/user`,
+        {userEmail: userEmail},
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
+            }
+        }
+    )
+}
+
 export function getFeatureRequests() {
     return axios.get(
         `${BASE_URL}/featureRequest`,

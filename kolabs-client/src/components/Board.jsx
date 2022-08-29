@@ -1,6 +1,6 @@
 import { message, List, Button, Avatar, Tag, Col, Form, Input, notification, Popover, Modal, Comment, Select } from 'antd';
 import React, { useState, useEffect } from 'react';
-import { addCommentToRequest, createNewFeatureRequest, getFeatureRequests, upvoteFeatureRequest } from '../util/APIUtils';
+import { addCommentToRequest, addUserToCompany, createNewFeatureRequest, getFeatureRequests, upvoteFeatureRequest } from '../util/APIUtils';
 import { BuildFilled, SearchOutlined } from '@ant-design/icons';
 import './Board.css';
 import { mapStatusToColor, mapStatusToText } from '../util/Helpers';
@@ -20,11 +20,11 @@ const Board = ()=> {
             })
             .catch(error => {
                 if (error.message) {
-                    message.error(error.message)
+                    message.error(error.response.data.message)
                 }
 
             })
-    });
+    }, []);
 
     const upvote = (requestId) => {
         setLoading(true);
@@ -38,12 +38,32 @@ const Board = ()=> {
         })
         .catch(error => {
             if (error.message) {
-                message.error(error.message)
+                message.error(error.response.data.message)
                 setLoading(false);
             }
         })
     }
-
+    const inviteUser = (values) => {
+        setLoading(true);
+        addUserToCompany(values.userEmail)
+        .then(res => {
+            const args = {
+                message: 'User has been added to your company',
+                duration: 5,
+                type: 'success',
+                placement: 'topRight'
+            };
+            notification.open(args);
+            setLoading(false);
+        })
+        .catch(error => {
+            console.log(error)
+            if (error.response) {
+                message.error(error.response.data.message)
+                setLoading(false);
+            }
+        })
+    }
     const submitNewRequest = (values) => {
         setLoading(true);
         createNewFeatureRequest(values.title, values.description)
@@ -63,7 +83,7 @@ const Board = ()=> {
         })
         .catch(error => {
             if (error.message) {
-                message.error(error.message)
+                message.error(error.response.data.message)
                 setLoading(false);
             }
         })
@@ -91,7 +111,7 @@ const Board = ()=> {
         })
         .catch(error => {
             if (error.message) {
-                message.error(error.message)
+                message.error(error.response.data.message)
                 setLoading(false);
             }
         })
@@ -132,6 +152,22 @@ const Board = ()=> {
     return (
         <div class="board-container">
             <h1>Feature Board: {localStorage.getItem("companyId")}</h1>
+            {localStorage.getItem("userType") == "COMPANY_MANAGER" && 
+                <div>
+                    <h3>Add user as collaborator</h3>
+                    <Form
+                        layout='inline'
+                        onFinish={inviteUser}
+                    >
+                        <Form.Item name="userEmail">
+                            <Input placeholder='User Email'></Input>
+                        </Form.Item> 
+                        <Button type="primary" htmlType="submit" loading={loading}>
+                                Add User
+                        </Button>
+                    </Form>
+                </div>
+            }
             {localStorage.getItem("userType") == "USER" && 
                 <div>
                     <h3>Submit a New Request</h3>
@@ -182,6 +218,9 @@ const Board = ()=> {
                                 {localStorage.getItem("userType") == "USER" &&
                                     <Tag color={mapStatusToColor(item.status)}> {mapStatusToText(item.status)}</Tag>
                                 }
+                            </>,
+                            <>
+                                <span>AI Generated Label: <Tag color={"purple"}>{item.aiLabelsSuggestions}</Tag></span>
                             </>
                         ]}
                     >

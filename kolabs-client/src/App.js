@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Div100vh from 'react-div-100vh';
 import Board from './components/Board';
 import { AuthProvider } from './Auth';
+import SignUp from './components/SignUp';
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("token");
@@ -25,6 +26,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Login />} />
+            <Route path='/logIn' element={<Login />} />
+            <Route path='/signUp' element={<SignUp />} />
             <Route path='/board' element={isAuthenticated() ? <Board /> : <Login />} />
           </Routes>
         </BrowserRouter>

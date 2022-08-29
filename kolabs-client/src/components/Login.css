@@ -1,0 +1,13 @@
+.login-card {
+    padding-left: 30vw;
+    padding-right: 30vw;
+    padding-top: 10vh;
+}
+
+.logo {
+    display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+        margin-bottom: 2vh;
+}
