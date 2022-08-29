@@ -4,17 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import { login } from "../util/APIUtils";
 import "./Login.css";
 import { AuthContext } from "../Auth";
+import jwtDecode from "jwt-decode";
 const Login = () => {
     const [loading, setLoading] = useState(false);
+    const {authenticated, setAuthenticated} = useContext(AuthContext);
     let navigate = useNavigate();
 
     const onFinish = (values) => {
         setLoading(true);
         login(values.email, values.password)
             .then(res => {
+                localStorage.setItem("token", res.data.token);
+                const decodedToken = jwtDecode(res.data.token);
+                localStorage.setItem("user", decodedToken.sub);
+                localStorage.setItem("userType", decodedToken.userType);
+                setAuthenticated(true);
+                navigate('/board', { replace: true })
                 setLoading(false);
-                console.log(res);
-                
             })
             .catch(error => {
                 setLoading(false);
