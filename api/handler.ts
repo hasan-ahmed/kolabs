@@ -213,7 +213,7 @@ export const getAllFeatureReqeustsHandler: APIGatewayProxyHandler = async (event
         if (companyId == null) {
             throw new Error("User is not associated to any companies.");
         }
-        let featureRequests = await getAllFeatureReqeustsForCompany(user.companyId);
+        let featureRequests = await getAllFeatureReqeustsForCompany(companyId);
         return {
           statusCode: 200,
           headers: {
